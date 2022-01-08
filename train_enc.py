@@ -32,7 +32,7 @@ parser.add_argument('--encoder', type=str, default='mlp',
                     help='Type of path encoder model (mlp or cnn).')
 parser.add_argument('--no-factor', action='store_true', default=False,
                     help='Disables factor graph model.')
-parser.add_argument('--suffix', type=str, default='_springs',
+parser.add_argument('--suffix', type=str, default='_springs5',
                     help='Suffix for training data (e.g. "_charged".')
 parser.add_argument('--dropout', type=float, default=0.5,
                     help='Dropout rate (1 - keep probability).')
@@ -135,7 +135,7 @@ def train(epoch, best_val_accuracy):
     loss_val = []
     acc_val = []
     model.train()
-    scheduler.step()
+    
     for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
@@ -150,20 +150,21 @@ def train(epoch, best_val_accuracy):
         loss = F.cross_entropy(output, target)
         loss.backward()
         optimizer.step()
+        scheduler.step()
 
         pred = output.data.max(1, keepdim=True)[1]
         correct = pred.eq(target.data.view_as(pred)).cpu().sum()
         acc = correct / pred.size(0)
 
-        loss_train.append(loss.data[0])
+        loss_train.append(loss.data.item())
         acc_train.append(acc)
 
     model.eval()
     for batch_idx, (data, target) in enumerate(valid_loader):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
-        data, target = Variable(data, volatile=True), Variable(
-            target, volatile=True)
+        with torch.no_grad():
+            data, target = Variable(data), Variable(target)
         output = model(data, rel_rec, rel_send)
 
         # Flatten batch dim
@@ -176,7 +177,7 @@ def train(epoch, best_val_accuracy):
         correct = pred.eq(target.data.view_as(pred)).cpu().sum()
         acc = correct / pred.size(0)
 
-        loss_val.append(loss.data[0])
+        loss_val.append(loss.data.item())
         acc_val.append(acc)
 
     print('Epoch: {:04d}'.format(epoch),
