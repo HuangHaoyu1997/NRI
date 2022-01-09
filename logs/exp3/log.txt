@@ -1,0 +1,10 @@
+Epoch: 0000 loss_train: 0.3324945554 acc_train: 0.8424742818 loss_val: 0.2007722334 acc_val: 0.9140229821 time: 10.7541s
+Epoch: 0001 loss_train: 0.2210719547 acc_train: 0.9012121558 loss_val: 0.1692449816 acc_val: 0.9279816151 time: 3.6511s
+Epoch: 0002 loss_train: 0.2045606005 acc_train: 0.9090477228 loss_val: 0.1629519646 acc_val: 0.9310026765 time: 3.5433s
+Epoch: 0003 loss_train: 0.1997106867 acc_train: 0.9109451175 loss_val: 0.1607596589 acc_val: 0.9319621921 time: 3.4011s
+Epoch: 0004 loss_train: 0.1989412014 acc_train: 0.9117949605 loss_val: 0.1602126786 acc_val: 0.9322537780 time: 3.4035s
+Epoch: 0005 loss_train: 0.1982009524 acc_train: 0.9120410085 loss_val: 0.1599517966 acc_val: 0.9323329926 time: 3.3850s
+Epoch: 0015 loss_train: 0.1986006844 acc_train: 0.9116426110 loss_val: 0.1599079084 acc_val: 0.9323723912 time: 3.4221s
+Epoch: 0016 loss_train: 0.1985084012 acc_train: 0.9119119048 loss_val: 0.1596100613 acc_val: 0.9324761033 time: 3.3978s
+Epoch: 0142 loss_train: 0.1988318288 acc_train: 0.9114298820 loss_val: 0.1594170207 acc_val: 0.9324762821 time: 3.2376s
+Best Epoch: 0142

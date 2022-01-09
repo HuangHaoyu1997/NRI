@@ -70,8 +70,7 @@ if args.save_folder:
     save_folder = '{}/exp{}/'.format(args.save_folder, exp_counter)
     while os.path.isdir(save_folder):
         exp_counter += 1
-        save_folder = os.path.join(args.save_folder,
-                                   'exp{}'.format(exp_counter))
+        save_folder = os.path.join(args.save_folder, 'exp{}'.format(exp_counter))
     os.mkdir(save_folder)
     meta_file = os.path.join(save_folder, 'metadata.pkl')
     model_file = os.path.join(save_folder, 'encoder.pt')
@@ -83,14 +82,13 @@ else:
     print("WARNING: No save_folder provided!" +
           "Testing (within this script) will throw an error.")
 
-train_loader, valid_loader, test_loader, loc_max, loc_min, vel_max, vel_min = load_data(
-    args.batch_size, args.suffix)
+train_loader, valid_loader, test_loader, loc_max, loc_min, vel_max, vel_min = load_data(args.batch_size, args.suffix)
 
 # Generate off-diagonal interaction graph
 off_diag = np.ones([args.num_atoms, args.num_atoms]) - np.eye(args.num_atoms)
 
-rel_rec = np.array(encode_onehot(np.where(off_diag)[0]), dtype=np.float32)
-rel_send = np.array(encode_onehot(np.where(off_diag)[1]), dtype=np.float32)
+rel_rec = np.array(encode_onehot(np.where(off_diag)[0]), dtype=np.float32) # 对角=0的1矩阵的非0元素的x坐标的onehot向量,5x5矩阵非0元素20个,故shape=[20,5]
+rel_send = np.array(encode_onehot(np.where(off_diag)[1]), dtype=np.float32) # y坐标的onehot向量
 rel_rec = torch.FloatTensor(rel_rec)
 rel_send = torch.FloatTensor(rel_send)
 
@@ -110,8 +108,9 @@ elif args.encoder == 'cnn':
                         )
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
-scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_decay,
-                                gamma=args.gamma)
+scheduler = lr_scheduler.StepLR(optimizer, 
+                                step_size = args.lr_decay,
+                                gamma = args.gamma)
 
 # Linear indices of an upper triangular mx, used for loss calculation
 triu_indices = get_triu_offdiag_indices(args.num_atoms)
@@ -129,6 +128,7 @@ best_model_params = model.state_dict()
 
 
 def train(epoch, best_val_accuracy):
+    """单epoch训练函数"""
     t = time.time()
     loss_train = []
     acc_train = []
@@ -137,15 +137,15 @@ def train(epoch, best_val_accuracy):
     model.train()
     
     for batch_idx, (data, target) in enumerate(train_loader):
-        if args.cuda:
-            data, target = data.cuda(), target.cuda()
+        # data是location和velocity vector的concat
+        # target是edge去掉了对角线元素
+        if args.cuda: data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
         optimizer.zero_grad()
-        output = model(data, rel_rec, rel_send)
-
+        output = model(data, rel_rec, rel_send) # output.shape=[batch, 20, num_classes]
         # Flatten batch dim
-        output = output.view(-1, args.num_classes)
-        target = target.view(-1)
+        output = output.view(-1, args.num_classes) # [batch,20, num_classes] -> [batch*20, num_classes]
+        target = target.view(-1) # [batch, 20] -> [batch*20]
 
         loss = F.cross_entropy(output, target)
         loss.backward()
@@ -186,6 +186,7 @@ def train(epoch, best_val_accuracy):
           'loss_val: {:.10f}'.format(np.mean(loss_val)),
           'acc_val: {:.10f}'.format(np.mean(acc_val)),
           'time: {:.4f}s'.format(time.time() - t))
+    
     if args.save_folder and np.mean(acc_val) > best_val_accuracy:
         torch.save(model.state_dict(), model_file)
         print('Best model so far, saving...')
@@ -208,11 +209,11 @@ def test():
     for batch_idx, (data, target) in enumerate(test_loader):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
-        data, target = Variable(data, volatile=True), Variable(
-            target, volatile=True)
+        with torch.no_grad():
+            data, target = Variable(data), Variable(target)
 
         # Limit to same length as train sequence
-        data = data[:, :, :args.timesteps, :].contiguous()
+        data = data[:, :, :args.timesteps, :].contiguous() # 调用contiguous()时,会强制拷贝一份tensor,但是2个tensor完全没有联系
 
         output = model(data, rel_rec, rel_send)
         # Flatten batch dim
@@ -225,7 +226,7 @@ def test():
         correct = pred.eq(target.data.view_as(pred)).cpu().sum()
         acc = correct / pred.size(0)
 
-        loss_test.append(loss.data[0])
+        loss_test.append(loss.data.item())
         acc_test.append(acc)
     print('--------------------------------')
     print('--------Testing-----------------')

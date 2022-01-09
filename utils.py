@@ -129,7 +129,7 @@ def load_data(batch_size=1, suffix=''):
     edges_test = np.load('data/edges_test' + suffix + '.npy')
 
     # [num_samples, num_timesteps, num_dims, num_atoms]
-    num_atoms = loc_train.shape[3]
+    num_atoms = loc_train.shape[3] # 质点的数量
 
     loc_max = loc_train.max()
     loc_min = loc_train.min()
@@ -146,12 +146,12 @@ def load_data(batch_size=1, suffix=''):
     loc_test = (loc_test - loc_min) * 2 / (loc_max - loc_min) - 1
     vel_test = (vel_test - vel_min) * 2 / (vel_max - vel_min) - 1
 
-    # Reshape to: [num_sims, num_atoms, num_timesteps, num_dims]
+    # Reshape to: [num_sims, num_atoms, num_timesteps, num_dims], e.g. [50000, 5, 49, 2]
     loc_train = np.transpose(loc_train, [0, 3, 1, 2])
     vel_train = np.transpose(vel_train, [0, 3, 1, 2])
-    feat_train = np.concatenate([loc_train, vel_train], axis=3)
-    edges_train = np.reshape(edges_train, [-1, num_atoms ** 2])
-    edges_train = np.array((edges_train + 1) / 2, dtype=np.int64)
+    feat_train = np.concatenate([loc_train, vel_train], axis=3) # [50000, 5, 49, 4]
+    edges_train = np.reshape(edges_train, [-1, num_atoms ** 2]) # [50000, 25]
+    edges_train = np.array((edges_train + 1) / 2, dtype=np.int64) # float -> long 
 
     loc_valid = np.transpose(loc_valid, [0, 3, 1, 2])
     vel_valid = np.transpose(vel_valid, [0, 3, 1, 2])
@@ -165,7 +165,7 @@ def load_data(batch_size=1, suffix=''):
     edges_test = np.reshape(edges_test, [-1, num_atoms ** 2])
     edges_test = np.array((edges_test + 1) / 2, dtype=np.int64)
 
-    feat_train = torch.FloatTensor(feat_train)
+    feat_train = torch.FloatTensor(feat_train) # feature就是location和velocity向量concat
     edges_train = torch.LongTensor(edges_train)
     feat_valid = torch.FloatTensor(feat_valid)
     edges_valid = torch.LongTensor(edges_valid)
@@ -174,9 +174,9 @@ def load_data(batch_size=1, suffix=''):
 
     # Exclude self edges
     off_diag_idx = np.ravel_multi_index(
-        np.where(np.ones((num_atoms, num_atoms)) - np.eye(num_atoms)),
-        [num_atoms, num_atoms])
-    edges_train = edges_train[:, off_diag_idx]
+        np.where(np.ones((num_atoms, num_atoms)) - np.eye(num_atoms)), # 对角线0元素,其余为1,np.where输出非零元素坐标
+        [num_atoms, num_atoms]) # 把对角线元素的index去掉，返回剩下的index
+    edges_train = edges_train[:, off_diag_idx] # 将edge邻接矩阵中所有的对角线元素都去掉
     edges_valid = edges_valid[:, off_diag_idx]
     edges_test = edges_test[:, off_diag_idx]
 
@@ -339,8 +339,10 @@ def to_2d_idx(idx, num_cols):
 
 
 def encode_onehot(labels):
-    classes = set(labels)
-    classes_dict = {c: np.identity(len(classes))[i, :] for i, c in enumerate(classes)}
+    classes = set(labels) # {0, 1, 2, 3, 4}
+    classes_dict = {c: np.identity(len(classes))[i, :] for i, c in enumerate(classes)} 
+    # {0: array([1., 0., 0., 0., 0.]), 1: array([0., 1., 0., 0., 0.]), 2: array([0., 0., 1., 0., 0.]), 3: array([0., 0., 0., 1., 0.]), 4: array([0., 0., 0., 0., 1.])}
+    # print('class:',classes_dict)
     labels_onehot = np.array(list(map(classes_dict.get, labels)), dtype=np.int32)
     return labels_onehot
 
@@ -473,3 +475,7 @@ def edge_accuracy(preds, target):
     correct = preds.float().data.eq(
         target.float().data.view_as(preds)).cpu().sum()
     return np.float(correct) / (target.size(0) * target.size(1))
+
+if __name__=="__main__":
+    triu_indices = get_triu_offdiag_indices(5)
+    print(triu_indices)

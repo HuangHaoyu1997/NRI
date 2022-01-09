@@ -6,11 +6,11 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--simulation', type=str, default='springs',
                     help='What simulation to generate.')
-parser.add_argument('--num-train', type=int, default=500,
+parser.add_argument('--num-train', type=int, default=50000,
                     help='Number of training simulations to generate.')
-parser.add_argument('--num-valid', type=int, default=100,
+parser.add_argument('--num-valid', type=int, default=10000,
                     help='Number of validation simulations to generate.')
-parser.add_argument('--num-test', type=int, default=100,
+parser.add_argument('--num-test', type=int, default=10000,
                     help='Number of test simulations to generate.')
 parser.add_argument('--length', type=int, default=5000,
                     help='Length of trajectory.')
@@ -18,7 +18,7 @@ parser.add_argument('--length-test', type=int, default=10000,
                     help='Length of test set trajectory.')
 parser.add_argument('--sample-freq', type=int, default=100,
                     help='How often to sample the trajectory.')
-parser.add_argument('--n-balls', type=int, default=5,
+parser.add_argument('--n-balls', type=int, default=10,
                     help='Number of balls in the simulation.')
 parser.add_argument('--seed', type=int, default=42,
                     help='Random seed.')
@@ -66,25 +66,27 @@ print("Generating {} training simulations".format(args.num_train))
 loc_train, vel_train, edges_train = generate_dataset(args.num_train,
                                                      args.length,
                                                      args.sample_freq)
+np.save('./data/loc_train' + suffix + '.npy', loc_train)
+np.save('./data/vel_train' + suffix + '.npy', vel_train)
+np.save('./data/edges_train' + suffix + '.npy', edges_train)
 
 print("Generating {} validation simulations".format(args.num_valid))
 loc_valid, vel_valid, edges_valid = generate_dataset(args.num_valid,
                                                      args.length,
                                                      args.sample_freq)
+np.save('./data/loc_valid' + suffix + '.npy', loc_valid)
+np.save('./data/vel_valid' + suffix + '.npy', vel_valid)
+np.save('./data/edges_valid' + suffix + '.npy', edges_valid)
 
 print("Generating {} test simulations".format(args.num_test))
 loc_test, vel_test, edges_test = generate_dataset(args.num_test,
                                                   args.length_test,
                                                   args.sample_freq)
+np.save('./data/loc_test' + suffix + '.npy', loc_test)
+np.save('./data/vel_test' + suffix + '.npy', vel_test)
+np.save('./data/edges_test' + suffix + '.npy', edges_test)
 
-np.save('loc_train' + suffix + '.npy', loc_train)
-np.save('vel_train' + suffix + '.npy', vel_train)
-np.save('edges_train' + suffix + '.npy', edges_train)
 
-np.save('loc_valid' + suffix + '.npy', loc_valid)
-np.save('vel_valid' + suffix + '.npy', vel_valid)
-np.save('edges_valid' + suffix + '.npy', edges_valid)
 
-np.save('loc_test' + suffix + '.npy', loc_test)
-np.save('vel_test' + suffix + '.npy', vel_test)
-np.save('edges_test' + suffix + '.npy', edges_test)
+
+

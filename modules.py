@@ -175,9 +175,14 @@ class CNNEncoder(nn.Module):
 
     def node2edge_temporal(self, inputs, rel_rec, rel_send):
         # NOTE: Assumes that we have the same graph across all samples.
-
+        # 所有的样本都来自同一个graph
+        
+        # inputs.shape = [batch,5,49,4]
+        # x.shape = [batch,5,196]
         x = inputs.view(inputs.size(0), inputs.size(1), -1)
-
+        
+        # rel_rec.shape = [20,5]
+        # receivers.shape = [batch, 20,196]
         receivers = torch.matmul(rel_rec, x)
         receivers = receivers.view(inputs.size(0) * receivers.size(1),
                                    inputs.size(2), 
