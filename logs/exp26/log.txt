@@ -1,5 +1,0 @@
-Epoch: 0000 loss_train: 0.4335042807 acc_train: 0.7848904729 loss_val: 0.3222889338 acc_val: 0.8481488228 time: 6.8421s
-Epoch: 0001 loss_train: 0.3681118312 acc_train: 0.8254366517 loss_val: 0.3144975356 acc_val: 0.8519356251 time: 6.0133s
-Epoch: 0002 loss_train: 0.3658184389 acc_train: 0.8269201517 loss_val: 0.3138373335 acc_val: 0.8521398306 time: 5.8535s
-Epoch: 0005 loss_train: 0.3661773687 acc_train: 0.8265724778 loss_val: 0.3137701780 acc_val: 0.8522443771 time: 5.7235s
-Epoch: 0013 loss_train: 0.3658140506 acc_train: 0.8268352151 loss_val: 0.3136489179 acc_val: 0.8523238897 time: 5.7056s
