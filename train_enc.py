@@ -18,9 +18,9 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
 parser.add_argument('--seed', type=int, default=42, help='Random seed.')
 parser.add_argument('--epochs', type=int, default=500,
                     help='Number of epochs to train.')
-parser.add_argument('--batch-size', type=int, default=128,
+parser.add_argument('--batch-size', type=int, default=512,
                     help='Number of samples per batch.')
-parser.add_argument('--lr', type=float, default=0.0005,
+parser.add_argument('--lr', type=float, default=0.02,
                     help='Initial learning rate.')
 parser.add_argument('--hidden', type=int, default=512,
                     help='Number of hidden units.')
@@ -28,7 +28,7 @@ parser.add_argument('--num-atoms', type=int, default=5,
                     help='Number of atoms in simulation.')
 parser.add_argument('--num-classes', type=int, default=2,
                     help='Number of edge types.')
-parser.add_argument('--encoder', type=str, default='mlp',
+parser.add_argument('--encoder', type=str, default='cnn',
                     help='Type of path encoder model (mlp or cnn).')
 parser.add_argument('--no-factor', action='store_true', default=False,
                     help='Disables factor graph model.')
